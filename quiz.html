@@ -1,53 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Riddle</title>
-    <style>
-        body {
-            background-color: #000;
-            color: #00FF00;
-            font-family: 'Courier New', Courier, monospace;
-            overflow: hidden;
-        }
-        .hacker-text {
-            position: absolute;
-            top: 50px;
-            left: 50px;
-            font-size: 24px;
-        }
-        .input-container {
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            background-color: #222;
-            border: none;
-            color: #00FF00;
-            font-size: 18px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini-Riddle</title>
+  <style>
+    /* Fundal hacker cu canvas pentru efectul Matrix */
+    body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      color: #0F0;
+      font-family: 'Courier New', Courier, monospace;
+      overflow: hidden;
+      position: relative;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+    /* Containerul pentru quiz */
+    .quiz-container {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -20%);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border: 1px solid #0F0;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 500px;
+      text-align: center;
+    }
+    .quiz-container p {
+      margin: 10px 0;
+    }
+    .quiz-container input {
+      width: calc(100% - 22px);
+      padding: 10px;
+      background-color: #111;
+      border: 1px solid #0F0;
+      color: #0F0;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .quiz-container button {
+      padding: 10px 20px;
+      background: #0F0;
+      border: none;
+      color: black;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .quiz-container button:hover {
+      background: #0c0;
+    }
+    .message {
+      margin-top: 10px;
+      font-size: 18px;
+    }
+  </style>
 </head>
 <body>
 
-<div class="hacker-text">
-    <p>Decrypting data...</p>
-    <p>Who is the blonde girl with green eyes? She is part of Alan Bloomgate's ride. Guess her name or fail terribly, time is ticking make up your mind. (Hint: Her name starts with 'J' and ends with 'er', write it in lower case!)</p>
-</div>
+<canvas id="matrixCanvas"></canvas>
 
-<div class="input-container">
-    <input type="text" id="answer" placeholder="Enter name..." />
-    <button onclick="checkAnswer()">Submit</button>
+<div class="quiz-container">
+  <p>
+    Who is the blonde girl with green eyes? She is part of Alan Bloomgate's ride. 
+    Guess her name or fail terribly, time is ticking, make up your mind.
+  </p>
+  <p>
+    Hint: her name starts with 'J' and ends with 'er'. Write it in lowercase!
+  </p>
+  <input type="text" id="answer" placeholder="Your answer here..." />
+  <button onclick="checkAnswer()">Submit</button>
+  <div class="message" id="message"></div>
 </div>
 
 <script>
+// Codul pentru efectul Matrix (cifre care curg)
+const canvas = document.getElementById("matrixCanvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const fontSize = 16;
+const columns = canvas.width / fontSize;
+const drops = [];
+for (let i = 0; i < columns; i++) {
+  drops[i] = Math.floor(Math.random() * canvas.height / fontSize);
+}
+
+function drawMatrix() {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#0F0";
+  ctx.font = fontSize + "px monospace";
+  for (let i = 0; i < drops.length; i++) {
+    const text = letters.charAt(Math.floor(Math.random() * letters.length));
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+      drops[i] = 0;
+    }
+    drops[i]++;
+  }
+}
+
+setInterval(drawMatrix, 50);
+
+window.addEventListener("resize", function() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+// Logica pentru quiz
 function checkAnswer() {
-    const answer = document.getElementById('answer').value.trim().toLowerCase();
-    if (answer === 'jennifer') {
-        window.location.href = "https://drive.google.com/file/d/1ZWN3oioKuWled0cRLOJdHmaUkMEVdZhI/view?usp=sharing"; // Redirecțione
+  const input = document.getElementById("answer");
+  const messageDiv = document.getElementById("message");
+  const answer = input.value.trim().toLowerCase();
+  if (answer === "jennifer") {
+    messageDiv.textContent = "Correct!";
+    messageDiv.style.color = "#0F0";
+    // Redirecționează către Google Drive cu imaginea ta:
+      window.location.href = "https://drive.google.com/file/d/1ZWN3oioKuWled0cRLOJdHmaUkMEVdZhI/view?usp=drive_link";
+  } else {
+    messageDiv.textContent = "Incorrect. Try again!";
+    messageDiv.style.color = "#F00";
+  }
+}
+</script>
+
+</body>
+</html>
